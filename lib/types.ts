@@ -5,6 +5,11 @@ export type Specialty =
   | "Pediatrics"
   | "Orthopedics";
 
+export type DoctorSlot = {
+  time: string;
+  disabled?: boolean;
+};
+
 export type Doctor = {
   id: number;
   slug: string;
@@ -19,11 +24,12 @@ export type Doctor = {
   bio: string;
   credentials: string[];
   highlights: string[];
-  slots: string[];
+  slots: DoctorSlot[];
 };
 
 export type Appointment = {
   id: string;
+  doctorSlug: string;
   doctor: string;
   specialty: Specialty;
   date: string;

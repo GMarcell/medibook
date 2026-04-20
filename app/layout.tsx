@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AppProviders } from "@/components/app-providers";
 import { SiteShell } from "@/components/site-shell";
 
 export const metadata: Metadata = {
@@ -19,7 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SiteShell>{children}</SiteShell>
+        <AppProviders>
+          <SiteShell>{children}</SiteShell>
+        </AppProviders>
       </body>
     </html>
   );

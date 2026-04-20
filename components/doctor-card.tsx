@@ -14,41 +14,41 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
     <article className="surface-card flex h-full flex-col p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--surface-muted)] font-semibold text-[var(--primary)]">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-(--surface-muted) font-semibold text-(--primary)">
             {getInitials(doctor.name)}
           </div>
           <div>
             <p className="heading-font text-xl font-extrabold">{doctor.name}</p>
-            <p className="text-sm text-[var(--muted)]">
+            <p className="text-sm text-(--muted)">
               {doctor.specialty} · {doctor.experience}
             </p>
           </div>
         </div>
-        <div className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--primary)]">
+        <div className="rounded-full bg-(--accent-soft) px-3 py-1 text-xs font-semibold text-(--primary)">
           {doctor.rating.toFixed(1)} / 5
         </div>
       </div>
-      <p className="mt-5 text-sm leading-6 text-[var(--muted)]">{doctor.bio}</p>
+      <p className="mt-5 text-sm leading-6 text-(--muted)">{doctor.bio}</p>
       <div className="mt-5 flex flex-wrap gap-2">
         {doctor.highlights.map((highlight) => (
           <span
             key={highlight}
-            className="rounded-full border border-[var(--line)] bg-white px-3 py-1 text-xs text-[var(--muted)]"
+            className="rounded-full border border-(--line) bg-white px-3 py-1 text-xs text-(--muted)"
           >
             {highlight}
           </span>
         ))}
       </div>
-      <div className="mt-6 grid gap-3 rounded-[20px] bg-[var(--surface-muted)] p-4 text-sm text-[var(--muted)]">
+      <div className="mt-6 grid gap-3 rounded-[20px] bg-(--surface-muted) p-4 text-sm text-(--muted)">
         <div className="flex items-center justify-between">
           <span>Location</span>
-          <span className="font-medium text-[var(--foreground)]">
+          <span className="font-medium text-(--foreground)">
             {doctor.location}
           </span>
         </div>
         <div className="flex items-center justify-between">
           <span>Next availability</span>
-          <span className="font-medium text-[var(--foreground)]">
+          <span className="font-medium text-(--foreground)">
             {doctor.nextAvailable}
           </span>
         </div>
@@ -56,13 +56,13 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
       <div className="mt-6 flex gap-3">
         <Link
           href={`/doctors/${doctor.slug}`}
-          className="flex-1 rounded-full border border-[var(--line)] px-4 py-3 text-center text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--primary)]"
+          className="flex-1 rounded-full border border-(--line) px-4 py-3 text-center text-sm font-semibold text-(--foreground) transition hover:border-(--primary)"
         >
           View profile
         </Link>
         <Link
           href={`/book?doctor=${doctor.slug}`}
-          className="flex-1 rounded-full bg-[var(--primary)] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[var(--primary-strong)]"
+          className="flex-1 rounded-full bg-(--primary) px-4 py-3 text-center text-sm font-semibold text-white! transition hover:bg-(--primary-strong)"
         >
           Book slot
         </Link>

@@ -28,9 +28,17 @@ export const doctors: Doctor[] = [
     nextAvailable: "Today, 14:30",
     languages: ["English", "Bahasa Indonesia"],
     bio: "Specialises in preventive cardiology and hypertension management with a calm, educational bedside manner.",
-    credentials: ["MD, Universitas Indonesia", "Fellowship in Preventive Cardiology"],
+    credentials: [
+      "MD, Universitas Indonesia",
+      "Fellowship in Preventive Cardiology",
+    ],
     highlights: ["Same-day consultation", "ECG review", "Heart health plans"],
-    slots: ["09:00", "11:30", "14:30", "16:15"],
+    slots: [
+      { time: "09:00" },
+      { time: "11:30" },
+      { time: "14:30" },
+      { time: "16:15", disabled: true },
+    ],
   },
   {
     id: 2,
@@ -46,7 +54,11 @@ export const doctors: Doctor[] = [
     bio: "Focuses on acne treatment, eczema care, and cosmetic dermatology with evidence-based plans.",
     credentials: ["MD, Airlangga University", "Board Certified Dermatologist"],
     highlights: ["Teleconsult friendly", "Skin imaging", "Teen acne clinic"],
-    slots: ["10:15", "13:00", "15:45"],
+    slots: [
+      { time: "10:15", disabled: true },
+      { time: "13:00" },
+      { time: "15:45" },
+    ],
   },
   {
     id: 3,
@@ -62,7 +74,11 @@ export const doctors: Doctor[] = [
     bio: "Known for family-centered care, vaccination planning, and child development follow-ups.",
     credentials: ["MD, Gadjah Mada University", "Pediatric Care Certification"],
     highlights: ["Evening slots", "Vaccination plans", "Growth monitoring"],
-    slots: ["08:30", "12:00", "18:00"],
+    slots: [
+      { time: "08:30" },
+      { time: "12:00", disabled: true },
+      { time: "18:00" },
+    ],
   },
   {
     id: 4,
@@ -78,13 +94,19 @@ export const doctors: Doctor[] = [
     bio: "Treats sports injuries, joint pain, and post-operative recovery with clear rehabilitation plans.",
     credentials: ["MD, Padjadjaran University", "Sports Medicine Fellowship"],
     highlights: ["Sports injury focus", "X-ray review", "Rehab planning"],
-    slots: ["09:30", "11:00", "13:30", "17:15"],
+    slots: [
+      { time: "09:30" },
+      { time: "11:00" },
+      { time: "13:30" },
+      { time: "17:15", disabled: true },
+    ],
   },
 ];
 
 export const patientAppointments: Appointment[] = [
   {
     id: "MB-2049",
+    doctorSlug: "maya-santoso",
     doctor: "Dr. Maya Santoso",
     specialty: "Cardiology",
     date: "18 Apr 2026",
@@ -94,6 +116,7 @@ export const patientAppointments: Appointment[] = [
   },
   {
     id: "MB-1927",
+    doctorSlug: "nina-pramesti",
     doctor: "Dr. Nina Pramesti",
     specialty: "Pediatrics",
     date: "04 Apr 2026",
@@ -103,6 +126,7 @@ export const patientAppointments: Appointment[] = [
   },
   {
     id: "MB-1884",
+    doctorSlug: "rafael-wibowo",
     doctor: "Dr. Rafael Wibowo",
     specialty: "Dermatology",
     date: "22 Apr 2026",
