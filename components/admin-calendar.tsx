@@ -175,6 +175,9 @@ export function AdminCalendar() {
                     const top = (startValue - HOURS[0]) * PIXELS_PER_HOUR;
                     const height = (endValue - startValue) * PIXELS_PER_HOUR;
                     const isSelected = selectedEvent?.id === event.id;
+                    const contentHeight = height - 24;
+                    const showPatient = contentHeight >= 56;
+                    const showMeta = contentHeight >= 80;
 
                     return (
                       <button
@@ -201,19 +204,27 @@ export function AdminCalendar() {
                           setSelectedEvent(event);
                         }}
                         data-calendar-event="true"
-                        className={`absolute left-2 right-2 overflow-visible rounded-[18px] border p-3 text-left shadow-[0_14px_30px_rgba(18,48,26,0.12)] transition hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] ${getToneClasses(event.tone)}`}
+                        className={`absolute left-2 right-2 flex min-w-0 flex-col overflow-hidden rounded-[18px] border p-3 text-left shadow-[0_14px_30px_rgba(18,48,26,0.12)] transition hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] ${getToneClasses(event.tone)}`}
                         style={{ top: `${top}px`, height: `${height}px` }}
                         aria-expanded={isSelected}
                         aria-label={`Open details for ${event.patient} with ${event.doctor}`}
                       >
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] opacity-80">
+                        <p className="shrink-0 text-xs font-semibold uppercase tracking-[0.18em] opacity-80">
                           {event.start} - {event.end}
                         </p>
-                        <p className="mt-2 text-sm font-bold">{event.doctor}</p>
-                        <p className="mt-1 text-sm opacity-90">{event.patient}</p>
-                        <p className="mt-2 text-xs opacity-80">
-                          {event.specialty} · {event.room}
+                        <p className="mt-2 min-w-0 break-words text-sm leading-5 font-bold">
+                          {event.doctor}
                         </p>
+                        {showPatient ? (
+                          <p className="mt-1 min-w-0 break-words text-sm leading-5 opacity-90">
+                            {event.patient}
+                          </p>
+                        ) : null}
+                        {showMeta ? (
+                          <p className="mt-2 min-w-0 break-words text-xs leading-4 opacity-80">
+                            {event.specialty} · {event.room}
+                          </p>
+                        ) : null}
                       </button>
                     );
                   })}
