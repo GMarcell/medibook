@@ -2,15 +2,30 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAdminCalendar } from "@/lib/admin-calendar-context";
 import { useBooking } from "@/lib/booking-context";
 import { useDoctorDirectory } from "@/lib/doctor-directory-context";
 import { useToast } from "@/lib/toast-context";
+import type { Specialty } from "@/lib/types";
 
 const bookingDates = [
-  { label: "18 Apr", year: "2026", full: "18 Apr 2026" },
-  { label: "19 Apr", year: "2026", full: "19 Apr 2026" },
   { label: "20 Apr", year: "2026", full: "20 Apr 2026" },
+  { label: "21 Apr", year: "2026", full: "21 Apr 2026" },
+  { label: "22 Apr", year: "2026", full: "22 Apr 2026" },
+  { label: "23 Apr", year: "2026", full: "23 Apr 2026" },
+  { label: "24 Apr", year: "2026", full: "24 Apr 2026" },
 ];
+
+const specialtyPresentation: Record<
+  Specialty,
+  { tone: "forest" | "lime" | "sage" | "gold"; room: string }
+> = {
+  Cardiology: { tone: "forest", room: "Room A1" },
+  Dermatology: { tone: "sage", room: "Room B3" },
+  Neurology: { tone: "forest", room: "Room E1" },
+  Pediatrics: { tone: "lime", room: "Room C2" },
+  Orthopedics: { tone: "gold", room: "Room D1" },
+};
 
 function formatBookingDate(date: string) {
   const [day, month, year] = date.split(" ");
@@ -24,6 +39,67 @@ function formatBookingDate(date: string) {
     year,
     full: date,
   };
+}
+
+function getCalendarDayKey(date: string) {
+  const [day, month, year] = date.split(" ");
+  const monthIndex = {
+    Jan: 0,
+    Feb: 1,
+    Mar: 2,
+    Apr: 3,
+    May: 4,
+    Jun: 5,
+    Jul: 6,
+    Aug: 7,
+    Sep: 8,
+    Oct: 9,
+    Nov: 10,
+    Dec: 11,
+  }[month ?? ""];
+
+  if (!day || monthIndex === undefined || !year) {
+    return null;
+  }
+
+  const parsedDate = new Date(
+    Date.UTC(Number(year), monthIndex, Number(day)),
+  );
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  const weekday = parsedDate.toLocaleDateString("en-US", {
+    weekday: "short",
+    timeZone: "UTC",
+  });
+
+  return weekday === "Mon" ||
+    weekday === "Tue" ||
+    weekday === "Wed" ||
+    weekday === "Thu" ||
+    weekday === "Fri"
+    ? weekday
+    : null;
+}
+
+function getEndTime(start: string) {
+  const [hour, minute] = start.split(":").map(Number);
+
+  if (Number.isNaN(hour) || Number.isNaN(minute)) {
+    return start;
+  }
+
+  const date = new Date(Date.UTC(2026, 3, 20, hour, minute));
+  date.setUTCMinutes(date.getUTCMinutes() + 60);
+
+  return date.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "UTC",
+  });
 }
 
 export function BookingFlow({
@@ -44,7 +120,13 @@ export function BookingFlow({
     clearBookingSelection,
   } = useBooking();
   const { showToast } = useToast();
+  const { addCalendarEvent } = useAdminCalendar();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [patientName, setPatientName] = useState("Alex Morgan");
+  const [patientEmail, setPatientEmail] = useState("alex@example.com");
+  const [patientNotes, setPatientNotes] = useState(
+    "Mild chest discomfort after exercise.",
+  );
 
   const fallbackDoctor = doctors[0];
   const contextDoctor =
@@ -120,6 +202,28 @@ export function BookingFlow({
     await new Promise((resolve) => {
       window.setTimeout(resolve, 900);
     });
+
+    const day = getCalendarDayKey(selectedDate);
+
+    if (day) {
+      const { tone, room } = specialtyPresentation[selectedDoctor.specialty];
+
+      addCalendarEvent({
+        id: `evt-booking-${Date.now()}`,
+        doctor: selectedDoctor.name,
+        patient: patientName.trim() || "Alex Morgan",
+        specialty: selectedDoctor.specialty,
+        day,
+        start: selectedSlot,
+        end: getEndTime(selectedSlot),
+        room,
+        visitType: "First consultation",
+        status: "Confirmed",
+        notes:
+          patientNotes.trim() || "Booked from the public scheduling flow.",
+        tone,
+      });
+    }
 
     showToast({
       title: "Booking confirmed",
@@ -225,7 +329,7 @@ export function BookingFlow({
             <div className="flex items-center justify-between">
               <span className="text-[var(--muted)]">Patient</span>
               <span className="font-semibold text-[var(--foreground)]">
-                Alex Morgan
+                {patientName}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -237,15 +341,18 @@ export function BookingFlow({
           </div>
           <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
             <input
-              defaultValue="Alex Morgan"
+              value={patientName}
+              onChange={(event) => setPatientName(event.target.value)}
               className="rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm"
             />
             <input
-              defaultValue="alex@example.com"
+              value={patientEmail}
+              onChange={(event) => setPatientEmail(event.target.value)}
               className="rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm"
             />
             <textarea
-              defaultValue="Mild chest discomfort after exercise."
+              value={patientNotes}
+              onChange={(event) => setPatientNotes(event.target.value)}
               rows={4}
               className="rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm"
             />

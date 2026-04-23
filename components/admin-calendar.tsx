@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { adminCalendarEvents, adminWeekDays } from "@/lib/data";
-import type { CalendarEvent } from "@/lib/types";
+import { adminWeekDays, specialties } from "@/lib/data";
+import { useAdminCalendar } from "@/lib/admin-calendar-context";
+import type { CalendarEvent, Specialty } from "@/lib/types";
 
 const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
 const PIXELS_PER_HOUR = 72;
@@ -62,7 +63,20 @@ export function AdminCalendar() {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [popoverPosition, setPopoverPosition] = useState({ left: 0, top: 0 });
+  const [selectedSpecialty, setSelectedSpecialty] = useState<Specialty | "All">(
+    "All",
+  );
+  const { events } = useAdminCalendar();
   const dayHeight = (HOURS.length - 1) * PIXELS_PER_HOUR;
+  const visibleEvents =
+    selectedSpecialty === "All"
+      ? events
+      : events.filter((event) => event.specialty === selectedSpecialty);
+  const activeSelectedEvent =
+    selectedEvent &&
+    visibleEvents.some((event) => event.id === selectedEvent.id)
+      ? selectedEvent
+      : null;
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -96,7 +110,7 @@ export function AdminCalendar() {
   return (
     <div ref={rootRef} className="surface-card relative overflow-hidden">
       <div className="border-b border-[var(--line)] bg-white px-6 py-5">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--primary)]">
               Calendar view
@@ -120,6 +134,33 @@ export function AdminCalendar() {
               </span>
             ))}
           </div>
+        </div>
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setSelectedSpecialty("All")}
+            className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+              selectedSpecialty === "All"
+                ? "border-[var(--primary)] bg-[var(--primary)] text-white"
+                : "border-[var(--line)] bg-white text-[var(--muted)] hover:border-[var(--primary)] hover:text-[var(--foreground)]"
+            }`}
+          >
+            All specialties
+          </button>
+          {specialties.map((specialty) => (
+            <button
+              key={specialty}
+              type="button"
+              onClick={() => setSelectedSpecialty(specialty)}
+              className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                selectedSpecialty === specialty
+                  ? "border-[var(--primary)] bg-[var(--primary)] text-white"
+                  : "border-[var(--line)] bg-white text-[var(--muted)] hover:border-[var(--primary)] hover:text-[var(--foreground)]"
+              }`}
+            >
+              {specialty}
+            </button>
+          ))}
         </div>
       </div>
       <div className="overflow-x-auto">
@@ -154,7 +195,7 @@ export function AdminCalendar() {
           </div>
 
           {adminWeekDays.map((day) => {
-            const events = adminCalendarEvents.filter((event) => event.day === day.key);
+            const events = visibleEvents.filter((event) => event.day === day.key);
 
             return (
               <div
@@ -174,7 +215,7 @@ export function AdminCalendar() {
                     const endValue = toHourValue(event.end);
                     const top = (startValue - HOURS[0]) * PIXELS_PER_HOUR;
                     const height = (endValue - startValue) * PIXELS_PER_HOUR;
-                    const isSelected = selectedEvent?.id === event.id;
+                    const isSelected = activeSelectedEvent?.id === event.id;
                     const contentHeight = height - 24;
                     const showPatient = contentHeight >= 56;
                     const showMeta = contentHeight >= 80;
@@ -188,7 +229,7 @@ export function AdminCalendar() {
                             return;
                           }
 
-                          if (selectedEvent?.id === event.id) {
+                          if (activeSelectedEvent?.id === event.id) {
                             setSelectedEvent(null);
                             return;
                           }
@@ -234,7 +275,7 @@ export function AdminCalendar() {
           })}
         </div>
       </div>
-      {selectedEvent ? (
+      {activeSelectedEvent ? (
         <div
           data-calendar-popover="true"
           className="absolute z-40 w-72 rounded-[22px] border border-[var(--line)] bg-white p-4 text-[var(--foreground)] shadow-[0_24px_60px_rgba(18,48,26,0.22)]"
@@ -249,47 +290,47 @@ export function AdminCalendar() {
                 Appointment detail
               </p>
               <p className="mt-2 text-base font-bold text-[var(--foreground)]">
-                {selectedEvent.patient}
+                {activeSelectedEvent.patient}
               </p>
             </div>
             <span
-              className={`rounded-full px-3 py-1 text-[11px] font-semibold ${getStatusClasses(selectedEvent.status)}`}
+              className={`rounded-full px-3 py-1 text-[11px] font-semibold ${getStatusClasses(activeSelectedEvent.status)}`}
             >
-              {selectedEvent.status}
+              {activeSelectedEvent.status}
             </span>
           </div>
           <div className="mt-4 space-y-3 text-sm">
             <div className="flex items-start justify-between gap-3">
               <span className="text-[var(--muted)]">Doctor</span>
               <span className="max-w-[160px] text-right font-medium">
-                {selectedEvent.doctor}
+                {activeSelectedEvent.doctor}
               </span>
             </div>
             <div className="flex items-start justify-between gap-3">
               <span className="text-[var(--muted)]">Time</span>
               <span className="font-medium">
-                {selectedEvent.day} · {selectedEvent.start} - {selectedEvent.end}
+                {activeSelectedEvent.day} · {activeSelectedEvent.start} - {activeSelectedEvent.end}
               </span>
             </div>
             <div className="flex items-start justify-between gap-3">
               <span className="text-[var(--muted)]">Visit</span>
               <span className="max-w-[160px] text-right font-medium">
-                {selectedEvent.visitType}
+                {activeSelectedEvent.visitType}
               </span>
             </div>
             <div className="flex items-start justify-between gap-3">
               <span className="text-[var(--muted)]">Specialty</span>
               <span className="max-w-[160px] text-right font-medium">
-                {selectedEvent.specialty}
+                {activeSelectedEvent.specialty}
               </span>
             </div>
             <div className="flex items-start justify-between gap-3">
               <span className="text-[var(--muted)]">Room</span>
-              <span className="font-medium">{selectedEvent.room}</span>
+              <span className="font-medium">{activeSelectedEvent.room}</span>
             </div>
           </div>
           <div className="mt-4 rounded-2xl bg-[var(--surface-muted)] p-3 text-sm leading-6 text-[var(--muted)]">
-            {selectedEvent.notes}
+            {activeSelectedEvent.notes}
           </div>
         </div>
       ) : null}
