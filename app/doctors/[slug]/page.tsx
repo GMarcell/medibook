@@ -1,17 +1,13 @@
-import { doctors } from "@/lib/data";
+"use client";
+
 import DoctorProfile from "@/components/doctor-profile";
-import { notFound } from "next/navigation";
+import { useDoctorDirectory } from "@/lib/doctor-directory-context";
+import { notFound, useParams } from "next/navigation";
 
-export function generateStaticParams() {
-  return doctors.map((doctor) => ({ slug: doctor.slug }));
-}
-
-export default async function DoctorProfilePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
+export default function DoctorProfilePage() {
+  const params = useParams<{ slug: string }>();
+  const { doctors } = useDoctorDirectory();
+  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const doctor = doctors.find((entry) => entry.slug === slug);
 
   if (!doctor) {

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { DoctorDirectory } from "@/components/doctor-directory";
-import { DoctorDirectoryProvider } from "@/lib/doctor-directory-context";
 
 export const metadata: Metadata = {
   title: "Doctor Listing",
@@ -9,9 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function DoctorsPage() {
-  return (
-    <DoctorDirectoryProvider>
-      <DoctorDirectory />
-    </DoctorDirectoryProvider>
-  );
+  return <DoctorDirectory />;
 }
